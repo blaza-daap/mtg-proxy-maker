@@ -43,6 +43,24 @@ createEffect(function syncWithLocalStorage() {
   localStorage.setItem("defaultVerso", defaultVerso());
 });
 
+const borderColorMap: Record<string, string> = {
+  'black': '#161410',
+  'white': '#F9FAF4',
+  'silver': '#C0C0C0',
+  'gold': '#D4AF37'
+};
+
+export const [borderColor, setBorderColor] = createSignal<string>(localStorage.getItem('borderColor') || 'black');
+
+// Set initial CSS variable
+document.documentElement.style.setProperty('--card-bgc', borderColorMap[borderColor()]);
+
+createEffect(function syncBorderColorWithLocalStorage() {
+  localStorage.setItem("borderColor", borderColor());
+  // Update CSS variable
+  document.documentElement.style.setProperty('--card-bgc', borderColorMap[borderColor()]);
+});
+
 export default function App() {
   const url = new URL(window.location.href);
 
@@ -129,6 +147,8 @@ export default function App() {
         setLanguage={setLanguage}
         printVersos={printVersos()}
         setPrintVersos={setPrintVersos}
+        borderColor={borderColor()}
+        setBorderColor={setBorderColor}
         onAddCard={fetchAndAddCard}
         onRawListImport={async (rawList) => {
           const newList = await getNewListFromMTGO(rawList);

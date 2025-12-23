@@ -7,6 +7,8 @@ type SidebarProps = {
   setLanguage: Setter<string>;
   printVersos: boolean;
   setPrintVersos: Setter<boolean>;
+  borderColor: string;
+  setBorderColor: Setter<string>;
   onAddCard: (cardName: string) => void;
   onClearList: () => void;
   onRawListImport: (rawCardList: string) => void;
@@ -48,6 +50,24 @@ export default function Sidebar(props: SidebarProps) {
           <ScryfallSearchBox
             onAddCard={({ name }) => props.onAddCard(name)}
           />
+          <label class="form-control">
+            <div class="label-text text-white">
+              Border color
+            </div>
+            <select
+              name="borderColor"
+              value={props.borderColor}
+              onChange={(e) => {
+                props.setBorderColor(e.target.value);
+              }}
+              class="select"
+            >
+              <option value="black">Black</option>
+              <option value="white">White</option>
+              <option value="silver">Silver</option>
+              <option value="gold">Gold</option>
+            </select>
+          </label>
           <button
             type="button"
             class="btn btn-secondary w-full"
