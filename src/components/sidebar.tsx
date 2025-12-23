@@ -1,6 +1,7 @@
-import { Setter, createSignal } from "solid-js";
+import { Setter, createSignal, For } from "solid-js";
 import InfoTab from "./info-tab";
 import ScryfallSearchBox from "./scryfall-searchbox";
+import type { CardListName } from "../services/power-cube-loader";
 
 type SidebarProps = {
   language: string;
@@ -12,10 +13,30 @@ type SidebarProps = {
   onAddCard: (cardName: string) => void;
   onClearList: () => void;
   onRawListImport: (rawCardList: string) => void;
+  onLoadPowerOf9: () => void;
+  onLoadPowerCube: () => void;
+  onLoadCardList: (listName: CardListName) => void;
+  isLoading: boolean;
+  loadingProgress: { current: number; total: number } | null;
+  skippedCards: string[];
+  onClearSkippedCards: () => void;
 };
 
 export default function Sidebar(props: SidebarProps) {
   const [rawCardListDialogOpen, setRawCardListDialogOpen] = createSignal(false);
+  const [cubeMenuOpen, setCubeMenuOpen] = createSignal(false);
+
+  const cardListNames: CardListName[] = [
+    'Power of 9',
+    'White',
+    'Blue',
+    'Black',
+    'Red',
+    'Green',
+    'Multicolor',
+    'Colorless',
+    'Lands'
+  ];
 
   return (
     <>
@@ -75,10 +96,56 @@ export default function Sidebar(props: SidebarProps) {
           >
             Import from MTGO
           </button>
+          
+          <div class="dropdown dropdown-top w-full">
+            <div 
+              tabindex="0" 
+              role="button" 
+              class="btn btn-primary w-full"
+              onClick={() => setCubeMenuOpen(!cubeMenuOpen())}
+            >
+              Load Power Cube List
+              <svg class="fill-current" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/></svg>
+            </div>
+            <ul 
+              tabindex="0" 
+              class="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow max-h-80 overflow-y-auto flex-nowrap"
+              classList={{ hidden: !cubeMenuOpen() }}
+            >
+              {cardListNames.map((listName) => (
+                <li>
+                  <button
+                    onClick={() => {
+                      props.onLoadCardList(listName);
+                      setCubeMenuOpen(false);
+                    }}
+                    disabled={props.isLoading}
+                  >
+                    {listName}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {props.isLoading && props.loadingProgress && (
+            <div class="w-full">
+              <div class="text-white text-sm mb-2 text-center">
+                Loading cards: {props.loadingProgress.current} / {props.loadingProgress.total}
+              </div>
+              <progress 
+                class="progress progress-primary w-full" 
+                value={props.loadingProgress.current} 
+                max={props.loadingProgress.total}
+              />
+            </div>
+          )}
+
           <button
             type="button"
             class="btn btn-secondary w-full"
             onClick={() => props.onClearList()}
+            disabled={props.isLoading}
           >
             Clear list
           </button>
@@ -111,6 +178,7 @@ export default function Sidebar(props: SidebarProps) {
 
       </aside>
 
+      {/* MTGO Import Dialog */}
       <dialog
         class="z-20 h-1/2 w-96 bg-stone-600 shadow-xl mt-52 rounded-lg backdrop:bg-black/50"
         open={rawCardListDialogOpen()}
@@ -143,6 +211,32 @@ export default function Sidebar(props: SidebarProps) {
             <button class="btn btn-primary flex-1">Submit</button>
           </div>
         </form>
+      </dialog>
+
+      {/* Skipped Cards Dialog */}
+      <dialog
+        class="z-20 max-h-[80vh] w-96 bg-stone-600 shadow-xl mt-20 rounded-lg backdrop:bg-black/50 p-6"
+        open={props.skippedCards.length > 0}
+      >
+        <div class="flex flex-col gap-4">
+          <h3 class="text-xl font-bold text-white">Cards Not Processed</h3>
+          <p class="text-white text-sm">
+            The following cards could not be loaded (likely double-faced or split cards):
+          </p>
+          <div class="bg-stone-700 rounded p-3 max-h-60 overflow-y-auto">
+            <ul class="list-disc list-inside text-white text-sm space-y-1">
+              <For each={props.skippedCards}>
+                {(cardName) => <li>{cardName}</li>}
+              </For>
+            </ul>
+          </div>
+          <button
+            class="btn btn-primary w-full"
+            onClick={() => props.onClearSkippedCards()}
+          >
+            OK
+          </button>
+        </div>
       </dialog>
     </>
   );
