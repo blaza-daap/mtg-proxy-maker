@@ -8,6 +8,7 @@ import {
 import { createStore } from "solid-js/store";
 import CardComponent from "./components/card/card";
 import CardVerso from "./components/card/card-verso";
+import CuttingLines from "./components/cutting-lines";
 import FullArtCard from "./components/card/full-art-card";
 import EditCardForm from "./components/edit-card-form";
 import Sidebar from "./components/sidebar";
@@ -236,7 +237,10 @@ export default function App() {
         onClearSkippedCards={() => setSkippedCards([])}
       />
       <div class="relative p-5 print:p-0 h-full overflow-y-auto bg-stone-700 print:bg-white print:overflow-visible pages">
-        <div class="card-grid print:m-auto">
+        <div class="print:m-auto" style={{ position: "relative", width: "fit-content" }}>
+          {/* Cutting lines for print - positioned relative to this wrapper */}
+          <CuttingLines />
+          <div class="card-grid">
           {/* Render full-art cards first */}
           <For each={fullArtCardList()}>
             {(card, j) => {
@@ -362,6 +366,7 @@ export default function App() {
               }}
             >Create a custom card</button>
           </Show>
+        </div>
         </div>
       </div>
       <Show when={selectedCard() && selectedCardIndex() !== null && selectedCardIndex()! >= fullArtCardList().length}>

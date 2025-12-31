@@ -94,14 +94,24 @@ body {
 		display: grid;
 		width: fit-content;
 		height: fit-content;
+		/* Each column is exactly card width + 2*bleed = 63mm + 2mm = 65mm */
 		grid-template-columns: repeat(
 			3,
-			1fr
+			calc(var(--card-width) + 2 * var(--card-bleed))
 		);
 		grid-template-rows: repeat(
 			3,
 			auto
 		);
 		grid-gap: var(--card-margin);
+		position: relative;
+	}
+
+	/* Cutting lines styling for print - fixed to repeat on every page */
+	.cutting-lines {
+		display: block !important;
+		position: fixed !important;
+		top: 0 !important;
+		left: 0 !important;
 	}
 }
