@@ -17,7 +17,7 @@ import { fetchCard } from "./services/scryfall";
 import { Card, getEmptyCard } from "./types/card";
 import { loadPowerOf9, type FullArtCardData } from "./services/power-of-9-loader";
 import { loadCardList, type CardListName } from "./services/power-cube-loader";
-import { fetchCardsWithRateLimit } from "./services/rate-limited-fetcher";
+import { fetchCardsWithRateLimit, fetchDoubleFacedCardsWithRateLimit } from "./services/rate-limited-fetcher";
 
 function createResourceStore<T extends {}>(
   initialValue: T,
@@ -143,6 +143,26 @@ export default function App() {
         setFullArtCardList(powerOf9);
         setCardList([]);
         setLoadingProgress({ current: powerOf9.length, total: powerOf9.length });
+      } else if (listName === 'Double-Sided') {
+        // Load double-sided cards with their back faces as verso
+        const cardNames = loadCardList(listName);
+        setLoadingProgress({ current: 0, total: cardNames.length });
+        
+        const result = await fetchDoubleFacedCardsWithRateLimit(
+          cardNames,
+          language(),
+          (current, total) => {
+            setLoadingProgress({ current, total });
+          }
+        );
+        
+        setFullArtCardList([]);
+        setCardList(result.cards);
+        
+        // Set skipped cards if any
+        if (result.skippedCards.length > 0) {
+          setSkippedCards(result.skippedCards);
+        }
       } else {
         // Load other lists from Scryfall with rate limiting
         const cardNames = loadCardList(listName);

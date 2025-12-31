@@ -7,7 +7,6 @@ Lightstall Inquisitor
 Mother of Runes
 Ocelot Pride
 Thraben Inspector
-Ademi of the Silkchutes
 Ajani, Nacatl Pariah
 Cathar Commando
 Containment Priest
@@ -32,7 +31,6 @@ Monastery Mentor
 Sage of the Skies
 Sanguine Evangelist
 Skyclave Apparition
-Yera and Oski, Weaver and Guide
 Beza, the Bounding Spring
 Serra Paragon
 Solitude

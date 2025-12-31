@@ -35,7 +35,8 @@ export default function Sidebar(props: SidebarProps) {
     'Green',
     'Multicolor',
     'Colorless',
-    'Lands'
+    'Lands',
+    'Double-Sided'
   ];
 
   return (

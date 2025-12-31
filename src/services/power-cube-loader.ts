@@ -2,6 +2,7 @@
 import blackCards from '/mtg_arena_power_cube/cards/black.txt?raw';
 import blueCards from '/mtg_arena_power_cube/cards/blue.txt?raw';
 import colorlessCards from '/mtg_arena_power_cube/cards/colorless.txt?raw';
+import doubleSidedCards from '/mtg_arena_power_cube/cards/double_sided.txt?raw';
 import greenCards from '/mtg_arena_power_cube/cards/green.txt?raw';
 import landsCards from '/mtg_arena_power_cube/cards/lands.txt?raw';
 import multiCards from '/mtg_arena_power_cube/cards/multi.txt?raw';
@@ -26,6 +27,7 @@ export const cardLists = {
   'Multicolor': parsePowerCubeList(multiCards),
   'Colorless': parsePowerCubeList(colorlessCards),
   'Lands': parsePowerCubeList(landsCards),
+  'Double-Sided': parsePowerCubeList(doubleSidedCards),
 };
 
 export type CardListName = keyof typeof cardLists;

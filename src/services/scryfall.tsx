@@ -185,6 +185,189 @@ export async function fetchCard(
   } as Card;
 }
 
+/**
+ * Fetches a double-faced card from Scryfall and returns a Card object
+ * with the front face as the main card and the back face as the verso.
+ */
+export async function fetchDoubleFacedCard(
+  title: string,
+  lang = "en"
+): Promise<Card> {
+  // For DFCs, we need to search by the front face name
+  const [frCards, enCards]: [any, any] = await Promise.all([
+    fetch(
+      `https://api.scryfall.com/cards/search/?q=!"${title}" lang:${lang} order:released direction:asc`
+    ).catch((e) => {
+      console.error(e);
+      throw new CardError(
+        title,
+        (
+          <>
+            <span>Double-faced card</span>
+            <span class="text-xl italic text-white">{title}</span>
+            <span>not found for lang {lang}</span>
+          </>
+        )
+      );
+    }),
+    fetch(
+      `https://api.scryfall.com/cards/search/?q=!"${title}" order:released direction:asc`
+    ).catch((e) => {
+      console.error(e);
+      throw new CardError(
+        title,
+        (
+          <>
+            <span>Double-faced card</span>
+            <span class="text-xl italic text-white">{title}</span>
+            <span>not found</span>
+          </>
+        )
+      );
+    }),
+  ]).then(([fr, en]) => Promise.all([fr.json(), en.json()]));
+
+  if (enCards.status == 404) {
+    throw new CardError(
+      title,
+      (
+        <>
+          <span>Double-faced card</span>
+          <span class="text-xl italic text-white">{title}</span>
+          <span>not found</span>
+        </>
+      )
+    );
+  }
+
+  if (frCards.status == 404) {
+    throw new CardError(
+      title,
+      (
+        <>
+          <span>Double-faced card</span>
+          <span class="text-xl italic text-white">{title}</span>
+          <span>not found for this language ({lang})</span>
+        </>
+      )
+    );
+  }
+
+  // Find the card with card_faces (double-faced)
+  const fr = frCards.data?.find((c: any) => c.card_faces && c.card_faces.length >= 2);
+  const en = enCards.data?.find((c: any) => c.card_faces && c.card_faces.length >= 2);
+
+  if (!fr || !en) {
+    throw new CardError(
+      title,
+      (
+        <>
+          <span>Double-faced card</span>
+          <span class="text-xl italic text-white">{title}</span>
+          <span>not found or doesn't have two faces</span>
+        </>
+      )
+    );
+  }
+
+  const frontFaceFr = fr.card_faces[0];
+  const backFaceFr = fr.card_faces[1];
+  const frontFaceEn = en.card_faces[0];
+  const backFaceEn = en.card_faces[1];
+
+  // Build front card
+  const colorsToUse: string[] = frontFaceEn["type_line"]?.toLowerCase().includes("land")
+    ? fr["color_identity"]
+    : frontFaceFr["colors"] ?? fr["colors"] ?? [];
+  const manaTypes = colorsToUse.flatMap(manaLetterToType);
+  const manaCost = parseMana(frontFaceFr["mana_cost"]);
+
+  const frontCard: Card = {
+    title: frontFaceFr["printed_name"] || frontFaceFr["name"],
+    manaCost,
+    artUrl: frontFaceFr["image_uris"]?.["art_crop"] || fr["image_uris"]?.["art_crop"],
+    totalVariants: 1,
+    aspect: {
+      frame: parseCardFrame(frontFaceEn["type_line"]),
+      color: parseCardColor(
+        manaTypes,
+        frontFaceEn["type_line"]?.toLowerCase().includes("artifact") &&
+        !frontFaceEn["type_line"]?.toLowerCase().includes("vehicle"),
+        manaCost
+          .filter((type) => type != "colorless" && type != "x")
+          .every(isBiType)
+      ),
+      legendary:
+        fr["frame_effects"]?.includes("legendary") ||
+        frontFaceEn["type_line"]?.toLowerCase().includes("legendary"),
+    },
+    typeText: frontFaceFr["printed_type_line"] || frontFaceEn["type_line"],
+    oracleText: frontFaceFr["printed_text"] || frontFaceFr["oracle_text"] || "",
+    flavorText: frontFaceFr["flavor_text"] || "",
+    power: frontFaceFr["power"],
+    toughness: frontFaceFr["toughness"],
+    artist: frontFaceFr["artist"] || fr["artist"],
+    collectorNumber: fr["collector_number"],
+    lang: fr["lang"],
+    rarity: fr["rarity"],
+    set: fr["set"],
+    category: frontFaceEn["type_line"]?.toLowerCase().includes("planeswalker")
+      ? "Planeswalker"
+      : "Regular",
+    loyalty: frontFaceFr["loyalty"],
+    verso: undefined, // Will be set below
+  };
+
+  // Build back card
+  const backColorsToUse: string[] = backFaceEn["type_line"]?.toLowerCase().includes("land")
+    ? fr["color_identity"]
+    : backFaceFr["colors"] ?? fr["colors"] ?? [];
+  const backManaTypes = backColorsToUse.flatMap(manaLetterToType);
+  const backManaCost = parseMana(backFaceFr["mana_cost"]);
+
+  const backCard: Card = {
+    title: backFaceFr["printed_name"] || backFaceFr["name"],
+    manaCost: backManaCost,
+    artUrl: backFaceFr["image_uris"]?.["art_crop"] || fr["image_uris"]?.["art_crop"],
+    totalVariants: 1,
+    aspect: {
+      frame: parseCardFrame(backFaceEn["type_line"]),
+      color: parseCardColor(
+        backManaTypes,
+        backFaceEn["type_line"]?.toLowerCase().includes("artifact") &&
+        !backFaceEn["type_line"]?.toLowerCase().includes("vehicle"),
+        backManaCost
+          .filter((type) => type != "colorless" && type != "x")
+          .every(isBiType)
+      ),
+      legendary:
+        fr["frame_effects"]?.includes("legendary") ||
+        backFaceEn["type_line"]?.toLowerCase().includes("legendary"),
+    },
+    typeText: backFaceFr["printed_type_line"] || backFaceEn["type_line"],
+    oracleText: backFaceFr["printed_text"] || backFaceFr["oracle_text"] || "",
+    flavorText: backFaceFr["flavor_text"] || "",
+    power: backFaceFr["power"],
+    toughness: backFaceFr["toughness"],
+    artist: backFaceFr["artist"] || fr["artist"],
+    collectorNumber: fr["collector_number"],
+    lang: fr["lang"],
+    rarity: fr["rarity"],
+    set: fr["set"],
+    category: backFaceEn["type_line"]?.toLowerCase().includes("planeswalker")
+      ? "Planeswalker"
+      : "Regular",
+    loyalty: backFaceFr["loyalty"],
+    verso: 'default',
+  };
+
+  // Set the back card as the verso of the front card
+  return {
+    ...frontCard,
+    verso: backCard,
+  } as Card;
+}
+
 export async function fetchVariants(title: string): Promise<Partial<Card>[]> {
   const response = await fetch(
     `https://api.scryfall.com/cards/search/?q=!"${title}" unique:art prefer:newest`
