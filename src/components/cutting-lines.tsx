@@ -39,22 +39,24 @@ export default function CuttingLines() {
   
   // Vertical line adjustments (in mm) - one per line
   const verticalAdjust = [
-    0,      // Line 1: Left edge of card 1 (reference - keep at 0)
-    -0.4,   // Line 2: Right edge of card 1
-    +0.2,   // Line 3: Left edge of card 2
+    // - moves the line right
+    +0.1,      // Line 1: Left edge of card 1 (reference - keep at 0)
+    -0.3,   // Line 2: Right edge of card 1
+    +0.25,   // Line 3: Left edge of card 2
     -0.2,   // Line 4: Right edge of card 2
-    +0.2,   // Line 5: Left edge of card 3
-    -0.4,   // Line 6: Right edge of card 3
+    +0.1,   // Line 5: Left edge of card 3
+    -0.3,   // Line 6: Right edge of card 3
   ];
   
   // Horizontal line adjustments (in mm) - one per line
   const horizontalAdjust = [
+    // - moves the line UP
     0,      // Line 1: Top edge of row 1 (reference - keep at 0)
     -0.3,   // Line 2: Bottom edge of row 1
-    -0.3,   // Line 3: Top edge of row 2
-    -0.6,   // Line 4: Bottom edge of row 2
-    -0.6,   // Line 5: Top edge of row 3
-    -1.2,   // Line 6: Bottom edge of row 3 (moved up more)
+    -0.5,   // Line 3: Top edge of row 2
+    -0.8,   // Line 4: Bottom edge of row 2
+    -0.75,   // Line 5: Top edge of row 3
+    -1.3,   // Line 6: Bottom edge of row 3 (moved up more)
   ];
   
   // ============================================
