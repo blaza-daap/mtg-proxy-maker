@@ -14,6 +14,7 @@ function injectSymbols(description: string): JSX.Element {
 				if (word in symbols) {
 					return (
 						<img
+							crossorigin="anonymous"
 							style={{
 								width: "2.5mm",
 								transform: "translateY(2px)",
@@ -76,6 +77,7 @@ export default function RegularDescription(props: RegularDescriptionProps) {
 			)}
 			{props.flavor && props.oracle && (
 				<img
+					crossorigin="anonymous"
 					src={flavorTextDividerUrl}
 					style={{
 						"margin-top": "1mm",

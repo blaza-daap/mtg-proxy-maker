@@ -19,7 +19,7 @@ export default function CardComponent(
     <div
       tabIndex={0}
       onClick={props.onClick}
-      class="rounded-xl print:rounded-none group outline !focus:outline outline-amber-500 print:outline-none"
+      class="mtg-card rounded-xl print:rounded-none group outline !focus:outline outline-amber-500 print:outline-none"
       style={{
         position: "relative",
         display: "flex",
@@ -39,6 +39,7 @@ export default function CardComponent(
       }}
     >
       <img
+        crossorigin="anonymous"
         style={{
           width: "100%",
           height: "100%",
@@ -61,6 +62,7 @@ export default function CardComponent(
       />
       {props.card.artUrl && <Art url={props.card.artUrl} category={props.card.category} />}
       <img
+        crossorigin="anonymous"
         style={{
           width: "100%",
           height: "100%",

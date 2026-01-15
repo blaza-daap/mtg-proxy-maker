@@ -2,6 +2,7 @@ import { Setter, createSignal, For } from "solid-js";
 import InfoTab from "./info-tab";
 import ScryfallSearchBox from "./scryfall-searchbox";
 import type { CardListName } from "../services/power-cube-loader";
+import { generateCardsPDF, estimatePageCount } from "../services/pdf-generator";
 
 type SidebarProps = {
   language: string;
@@ -20,11 +21,15 @@ type SidebarProps = {
   loadingProgress: { current: number; total: number } | null;
   skippedCards: string[];
   onClearSkippedCards: () => void;
+  totalCards: number;
 };
 
 export default function Sidebar(props: SidebarProps) {
   const [rawCardListDialogOpen, setRawCardListDialogOpen] = createSignal(false);
   const [cubeMenuOpen, setCubeMenuOpen] = createSignal(false);
+  
+  // Calculate pages based on total cards passed from parent
+  const pageCount = () => Math.ceil(props.totalCards / 9);
 
   const cardListNames: CardListName[] = [
     'Power of 9',
@@ -153,11 +158,16 @@ export default function Sidebar(props: SidebarProps) {
           <button
             type="button"
             class="btn btn-primary w-full"
-            onClick={() => {
-              print();
+            onClick={async () => {
+              try {
+                await generateCardsPDF(props.printVersos);
+              } catch (error) {
+                console.error('Failed to generate PDF:', error);
+              }
             }}
+            disabled={props.isLoading}
           >
-            Print all cards
+            Download PDF ({pageCount()} pages)
           </button>
 
           <div class="form-control">

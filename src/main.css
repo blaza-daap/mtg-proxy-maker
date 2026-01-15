@@ -63,6 +63,12 @@ body {
 }
 
 @media print {
+	/* Precise page setup for A4 at actual size */
+	@page {
+		size: A4 portrait;
+		margin: 6.5mm 6.5mm 12.5mm 6.5mm; /* top right bottom left */
+	}
+
 	html,
 	body {
 		background-color: white !important;

@@ -30,6 +30,7 @@ export default function CardVerso(
 
       <Match when={props.verso && typeof props.verso == 'string'}>
         <img class="rounded-xl hidden print:flex print:rounded-none card group outline-amber-500 print:outline-none"
+          crossorigin="anonymous"
           style={{
             position: "relative",
             "background-color": "var(--card-bgc, #161410)",

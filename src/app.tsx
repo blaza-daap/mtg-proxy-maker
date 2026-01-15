@@ -42,12 +42,6 @@ function createResourceStore<T extends {}>(
   return [signal, setStore] as const;
 }
 
-export const [defaultVerso, setDefaultVerso] = createSignal<string>(localStorage.getItem('defaultVerso') || '');
-
-createEffect(function syncWithLocalStorage() {
-  localStorage.setItem("defaultVerso", defaultVerso());
-});
-
 const borderColorMap: Record<string, string> = {
   'black': '#161410',
   'white': '#F9FAF4',
@@ -55,18 +49,24 @@ const borderColorMap: Record<string, string> = {
   'gold': '#D4AF37'
 };
 
+export const [defaultVerso, setDefaultVerso] = createSignal<string>(localStorage.getItem('defaultVerso') || '');
 export const [borderColor, setBorderColor] = createSignal<string>(localStorage.getItem('borderColor') || 'black');
 
 // Set initial CSS variable
 document.documentElement.style.setProperty('--card-bgc', borderColorMap[borderColor()]);
 
-createEffect(function syncBorderColorWithLocalStorage() {
-  localStorage.setItem("borderColor", borderColor());
-  // Update CSS variable
-  document.documentElement.style.setProperty('--card-bgc', borderColorMap[borderColor()]);
-});
-
 export default function App() {
+  // Sync global state with localStorage
+  createEffect(function syncWithLocalStorage() {
+    localStorage.setItem("defaultVerso", defaultVerso());
+  });
+
+  createEffect(function syncBorderColorWithLocalStorage() {
+    localStorage.setItem("borderColor", borderColor());
+    // Update CSS variable
+    document.documentElement.style.setProperty('--card-bgc', borderColorMap[borderColor()]);
+  });
+
   const url = new URL(window.location.href);
 
   const rawLanguage =
@@ -255,6 +255,7 @@ export default function App() {
         loadingProgress={loadingProgress()}
         skippedCards={skippedCards()}
         onClearSkippedCards={() => setSkippedCards([])}
+        totalCards={cardList().value.length + fullArtCardList().length}
       />
       <div class="relative p-5 print:p-0 h-full overflow-y-auto bg-stone-700 print:bg-white print:overflow-visible pages">
         <div class="print:m-auto" style={{ position: "relative", width: "fit-content" }}>
@@ -389,7 +390,7 @@ export default function App() {
         </div>
         </div>
       </div>
-      <Show when={selectedCard() && selectedCardIndex() !== null && selectedCardIndex()! >= fullArtCardList().length}>
+      <Show when={selectedCardIndex() !== null && selectedCardIndex()! >= fullArtCardList().length && selectedCard()}>
         {(card) => <aside class="h-full overflow-y-hidden print:hidden">
           <EditCardForm
             card={card}

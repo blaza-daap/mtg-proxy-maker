@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@tailwindcss/container-queries": "^0.1.1",
+    "jspdf": "^4.0.0",
+    "modern-screenshot": "^4.6.7",
     "solid-js": "^1.7.2",
     "ts-pattern": "^4.2.2"
   },

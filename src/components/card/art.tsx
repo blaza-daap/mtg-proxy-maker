@@ -26,5 +26,5 @@ const style: Record<Card["category"], JSX.CSSProperties> = {
 };
 
 export default function Art(props: ArtProps) {
-  return <img style={style[props.category]} src={props.url} />;
+  return <img style={style[props.category]} src={props.url} crossorigin="anonymous" />;
 }

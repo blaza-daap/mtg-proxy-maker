@@ -13,6 +13,7 @@ function injectSymbols(description: string): JSX.Element {
 				if (word in symbols) {
 					return (
 						<img
+							crossorigin="anonymous"
 							style={{
 								width: "2.5mm",
 								transform: "translateY(2px)",
@@ -79,6 +80,7 @@ function PlaneswalkerCost({ cost }: { cost: string }) {
 				{cost}
 			</span>
 			<img
+				crossorigin="anonymous"
 				src={src}
 				alt=""
 				class="max-w-none col-start-1 row-start-1"

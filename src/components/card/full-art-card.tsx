@@ -5,7 +5,7 @@ export default function FullArtCard(
     <div
       tabIndex={0}
       onClick={props.onClick}
-      class="rounded-xl print:rounded-none group outline !focus:outline outline-amber-500 print:outline-none"
+      class="mtg-card rounded-xl print:rounded-none group outline !focus:outline outline-amber-500 print:outline-none"
       style={{
         position: "relative",
         display: "flex",
@@ -24,6 +24,7 @@ export default function FullArtCard(
       }}
     >
       <img
+        crossorigin="anonymous"
         style={{
           width: "100%",
           height: "100%",

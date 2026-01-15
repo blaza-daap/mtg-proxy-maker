@@ -28,6 +28,7 @@ const style: Record<Card["category"], JSX.CSSProperties> = {
 function Mana({ src, name }: { src: string, name: ManaType }) {
   return (
     <img
+      crossorigin="anonymous"
       style={{
         width: "3mm",
         height: "3mm",
@@ -52,9 +53,9 @@ const fontSizeByLength = {
 
 export default function TitleBar(p: TitleBarProps) {
 
-  const props = mergeProps({ manaCost: [] }, p);
+  const props = mergeProps({ manaCost: [], title: "" }, p);
 
-  const sortedMana = () => props.manaCost.sort(
+  const sortedMana = () => [...props.manaCost].sort(
     (a, b) =>
       manaTypes.findIndex((t) => t === a) - manaTypes.findIndex((t) => t === b)
   );
