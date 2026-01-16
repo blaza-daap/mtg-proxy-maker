@@ -1,14 +1,20 @@
 /**
  * Cutting Lines Component for Print Layout
  * 
- * Renders 12 cutting guide lines (6 vertical + 6 horizontal) that are
- * EXACTLY aligned with card borders (including 1mm bleed).
+ * Renders 12 cutting guide lines (6 vertical + 6 horizontal) that cut
+ * THROUGH the black border (bleed) of each card, 1mm inward from the
+ * outer edge. This ensures the final cut card retains a thin black
+ * edge on all sides, preventing white edges from showing.
  * 
  * Card dimensions (from CSS variables):
  * - --card-width: 63mm (content)
- * - --card-bleed: 1mm (border on each side)
+ * - --card-bleed: 1mm (black border on each side)
  * - Total card footprint: 65mm × 90mm
  * - --card-margin: 1mm (gap between cards)
+ * 
+ * Cut line positions (relative to grid):
+ * - Vertical: 1mm, 64mm, 67mm, 130mm, 133mm, 196mm
+ * - Horizontal: 1mm, 89mm (plus offsets for rows 2 & 3)
  * 
  * Grid structure in print mode:
  * - 3 columns × 3 rows
@@ -18,7 +24,6 @@
  * 
  * First row cards have print:mt-5 margin (~5.29mm) pushing them down.
  * But the grid row height is auto, so it includes this margin.
- * The cutting lines trace the card borders, not the grid cell borders.
  */
 
 export default function CuttingLines() {
@@ -65,13 +70,15 @@ export default function CuttingLines() {
   const gridWidth = cardTotalWidth * 3 + cardMargin * 2;  // 197mm
 
   // Vertical line positions (X coordinates from grid left edge)
+  // Lines are 1mm INWARD from outer edge to cut THROUGH the black border
+  // This ensures cut cards retain a thin black edge on all sides
   const verticalLineBasePositions = [
-    0,                                          // Left edge of card 1
-    cardTotalWidth,                             // Right edge of card 1 = 65mm
-    cardTotalWidth + cardMargin,                // Left edge of card 2 = 66mm
-    cardTotalWidth * 2 + cardMargin,            // Right edge of card 2 = 131mm
-    cardTotalWidth * 2 + cardMargin * 2,        // Left edge of card 3 = 132mm
-    cardTotalWidth * 3 + cardMargin * 2,        // Right edge of card 3 = 197mm
+    cardBleed,                                           // Left cut for card 1 (1mm inward)
+    cardTotalWidth - cardBleed,                          // Right cut for card 1 = 64mm
+    cardTotalWidth + cardMargin + cardBleed,             // Left cut for card 2 = 67mm
+    cardTotalWidth * 2 + cardMargin - cardBleed,         // Right cut for card 2 = 130mm
+    cardTotalWidth * 2 + cardMargin * 2 + cardBleed,     // Left cut for card 3 = 133mm
+    cardTotalWidth * 3 + cardMargin * 2 - cardBleed,     // Right cut for card 3 = 196mm
   ];
   
   // Apply calibration adjustments to vertical lines
@@ -81,13 +88,14 @@ export default function CuttingLines() {
   // Row 1 cards are pushed down by print:mt-5 (1.25rem = 20px ≈ 5.29mm at 96dpi)
   const topOffset = 5.29;
   
+  // Horizontal line positions - 1mm INWARD from outer edge to cut THROUGH the black border
   const horizontalLineBasePositions = [
-    topOffset + 0,                                          // Top edge of row 1 cards
-    topOffset + cardTotalHeight,                            // Bottom edge of row 1 = 95.29mm
-    topOffset + cardTotalHeight + cardMargin,               // Top edge of row 2 = 96.29mm
-    topOffset + cardTotalHeight * 2 + cardMargin,           // Bottom edge of row 2 = 186.29mm
-    topOffset + cardTotalHeight * 2 + cardMargin * 2,       // Top edge of row 3 = 187.29mm
-    topOffset + cardTotalHeight * 3 + cardMargin * 2,       // Bottom edge of row 3 = 277.29mm
+    topOffset + cardBleed,                                           // Top cut for row 1 (1mm inward)
+    topOffset + cardTotalHeight - cardBleed,                         // Bottom cut for row 1 = 94.29mm
+    topOffset + cardTotalHeight + cardMargin + cardBleed,            // Top cut for row 2 = 97.29mm
+    topOffset + cardTotalHeight * 2 + cardMargin - cardBleed,        // Bottom cut for row 2 = 185.29mm
+    topOffset + cardTotalHeight * 2 + cardMargin * 2 + cardBleed,    // Top cut for row 3 = 188.29mm
+    topOffset + cardTotalHeight * 3 + cardMargin * 2 - cardBleed,    // Bottom cut for row 3 = 276.29mm
   ];
   
   // Apply calibration adjustments to horizontal lines

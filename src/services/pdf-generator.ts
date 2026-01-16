@@ -2,10 +2,11 @@
  * PDF Generator for MTG Proxy Cards
  * 
  * Generates print-ready PDFs with exact dimensions:
- * - Card size: 63mm × 88mm (with 1mm bleed = 65mm × 90mm total)
+ * - Card size: 63mm × 88mm (with 1mm black border = 65mm × 90mm total)
  * - Page size: A4 (210mm × 297mm)
  * - Layout: 3×3 grid (9 cards per page)
- * - Includes cutting lines aligned with card borders
+ * - Cutting lines positioned 1mm inward to cut THROUGH the black border
+ *   (ensures cards have no white edges after cutting)
  */
 
 import jsPDF from 'jspdf';
@@ -381,6 +382,17 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 
 /**
  * Adds cutting lines to the current PDF page
+ * 
+ * Lines are positioned 1mm INWARD from the card's outer edge to cut THROUGH
+ * the black border (bleed). This ensures the final cut card retains a thin
+ * black edge on all sides, preventing white edges from showing.
+ * 
+ * Card structure:
+ * - Content: 63mm × 88mm
+ * - Black border (bleed): 1mm on each side
+ * - Total footprint: 65mm × 90mm
+ * 
+ * Cutting lines go through the border at the content edge.
  */
 function addCuttingLines(pdf: jsPDF): void {
   // Line styling
@@ -388,13 +400,14 @@ function addCuttingLines(pdf: jsPDF): void {
   pdf.setLineWidth(0.15); // Super thin
 
   // Vertical cutting lines (6 total)
+  // Lines are 1mm inward from outer edge to cut through the black border
   const verticalLinePositions = [
-    0, // Left edge of card 1
-    CARD_TOTAL_WIDTH, // Right edge of card 1 (65mm)
-    CARD_TOTAL_WIDTH + CARD_MARGIN, // Left edge of card 2 (66mm)
-    CARD_TOTAL_WIDTH * 2 + CARD_MARGIN, // Right edge of card 2 (131mm)
-    CARD_TOTAL_WIDTH * 2 + CARD_MARGIN * 2, // Left edge of card 3 (132mm)
-    CARD_TOTAL_WIDTH * 3 + CARD_MARGIN * 2, // Right edge of card 3 (197mm)
+    CARD_BLEED, // Left cut line for card 1 (1mm inward)
+    CARD_TOTAL_WIDTH - CARD_BLEED, // Right cut line for card 1 (64mm)
+    CARD_TOTAL_WIDTH + CARD_MARGIN + CARD_BLEED, // Left cut line for card 2 (67mm)
+    CARD_TOTAL_WIDTH * 2 + CARD_MARGIN - CARD_BLEED, // Right cut line for card 2 (130mm)
+    CARD_TOTAL_WIDTH * 2 + CARD_MARGIN * 2 + CARD_BLEED, // Left cut line for card 3 (133mm)
+    CARD_TOTAL_WIDTH * 3 + CARD_MARGIN * 2 - CARD_BLEED, // Right cut line for card 3 (196mm)
   ];
 
   // Draw vertical lines with dotted pattern
@@ -405,13 +418,14 @@ function addCuttingLines(pdf: jsPDF): void {
   });
 
   // Horizontal cutting lines (6 total)
+  // Lines are 1mm inward from outer edge to cut through the black border
   const horizontalLinePositions = [
-    0, // Top edge of row 1
-    CARD_TOTAL_HEIGHT, // Bottom edge of row 1 (90mm)
-    CARD_TOTAL_HEIGHT + CARD_MARGIN, // Top edge of row 2 (91mm)
-    CARD_TOTAL_HEIGHT * 2 + CARD_MARGIN, // Bottom edge of row 2 (181mm)
-    CARD_TOTAL_HEIGHT * 2 + CARD_MARGIN * 2, // Top edge of row 3 (182mm)
-    CARD_TOTAL_HEIGHT * 3 + CARD_MARGIN * 2, // Bottom edge of row 3 (272mm)
+    CARD_BLEED, // Top cut line for row 1 (1mm inward)
+    CARD_TOTAL_HEIGHT - CARD_BLEED, // Bottom cut line for row 1 (89mm)
+    CARD_TOTAL_HEIGHT + CARD_MARGIN + CARD_BLEED, // Top cut line for row 2 (92mm)
+    CARD_TOTAL_HEIGHT * 2 + CARD_MARGIN - CARD_BLEED, // Bottom cut line for row 2 (180mm)
+    CARD_TOTAL_HEIGHT * 2 + CARD_MARGIN * 2 + CARD_BLEED, // Top cut line for row 3 (183mm)
+    CARD_TOTAL_HEIGHT * 3 + CARD_MARGIN * 2 - CARD_BLEED, // Bottom cut line for row 3 (271mm)
   ];
 
   // Draw horizontal lines with dotted pattern
